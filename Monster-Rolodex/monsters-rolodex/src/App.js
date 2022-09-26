@@ -1,6 +1,6 @@
 import { Component } from 'react';
 
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 
 
@@ -10,24 +10,58 @@ class App extends Component {
     super();
 
     this.state = {
-      name: {prenom: 'Brandon', nom: 'Guyon'},
-      company: 'Arinfo'
+      monsters: [],
+      searchField: ''
+
     };
   }
 
+  componentDidMount(){
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => response.json())
+      .then((users) => this.setState(() => {
+        return {monsters: users}
+      },
+      () => {
+        console.log(this.state)
+      }
+      ));
+  }
+
+  onSearchChange = (event) => {
+    const searchField = event.target.value.toLocaleLowerCase();
+
+    this.setState(() => {
+      return { searchField };
+    })
+  }
+
+
   render(){
 
-    return (
+    const {monsters, searchField } = this.state;
+    const { onSearchChange } = this;
+
+    const filteredMonsters = monsters.filter((monster) => {
+      return monster.name.toLocaleLowerCase().includes(searchField)
+    });
+    
+    return ( 
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          
-          <p>Salut je m'appel {this.state.name.prenom} {this.state.name.nom} et je travail chez {this.state.company}</p>
-          
-          <button onClick={() => {
-            this.setState({name: {prenom: 'Bryan', nom: 'Guyon'}})
-          }}>Changer prénom</button>
-        </header>
+      <input 
+        placeholder='Rechercher un monstre' 
+        className='search-box' 
+        type='search' 
+        onChange={onSearchChange}
+        />
+        
+        {
+          filteredMonsters.map((monster) => {
+            return <div key={monster.id}>
+              <h1>{monster.name}</h1>
+            </div>
+          })
+        }
       </div>
     );
 
